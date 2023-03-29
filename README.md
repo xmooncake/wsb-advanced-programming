@@ -1,1 +1,3 @@
-# wsb-advanced-programming
+# WSB Programowanie zaawansowane
+
+![alt text](/java.png)
