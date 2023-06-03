@@ -6,13 +6,12 @@ import classes.taskQueue as taskQueue
 
 
 userDir = os.path.expanduser('~')
-jls_extract_var = [
+paths = [
 
     userDir + '\Desktop',
     userDir + '\Downloads',
 
 ]
-paths = jls_extract_var
 
 
 
