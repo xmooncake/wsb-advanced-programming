@@ -20,15 +20,19 @@ class ChatClient:
         self.chat_area.pack(padx=10, pady=10)
 
         self.message_entry = tk.Entry(self.gui)
-        self.message_entry.pack(padx=10, pady=10)
+        self.message_entry.pack(padx=10, pady=5)
 
-        self.send_button = tk.Button(self.gui, text='Send', command=self.send_message)
-        self.send_button.pack(padx=10, pady=10)
+        self.button_frame = tk.Frame(self.gui)
+        self.button_frame.pack(padx=10, pady=5)
 
-        self.user_list_button = tk.Button(self.gui, text='Show Users', command=self.request_user_list)
-        self.user_list_button.pack(padx=10, pady=10)
+        self.send_button = tk.Button(self.button_frame, text='Send', command=self.send_message)
+        self.send_button.pack(side='left', padx=5)
+
+        self.user_list_button = tk.Button(self.button_frame, text='Show Users', command=self.request_user_list)
+        self.user_list_button.pack(side='left', padx=5)
 
         self.gui.protocol("WM_DELETE_WINDOW", self.on_closing)
+
 
     def connect(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
