@@ -45,6 +45,7 @@ class ChatServer:
         while True:
             try:
                 message = client.recv(1024).decode('utf-8')
+                print('[{}] {}: {}'.format(time.strftime('%H:%M:%S'), nickname, message))  # Print the message on the server console
                 if message == 'USERLIST':
                     client.send('USERLIST{}'.format(','.join(self.nicknames)).encode('utf-8'))
                 else:

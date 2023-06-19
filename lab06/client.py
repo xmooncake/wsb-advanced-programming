@@ -25,7 +25,7 @@ class ChatClient:
         self.send_button = tk.Button(self.gui, text='Send', command=self.send_message)
         self.send_button.pack(padx=10, pady=10)
 
-        self.user_list_button = tk.Button(self.gui, text='Connected Users', command=self.display_user_list)
+        self.user_list_button = tk.Button(self.gui, text='Show Users', command=self.request_user_list)
         self.user_list_button.pack(padx=10, pady=10)
 
         self.gui.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -71,9 +71,12 @@ class ChatClient:
         return simpledialog.askstring('Nickname', 'Enter your nickname')
 
     def on_closing(self):
-        self.client.send('koniec'.encode('utf-8'))
+        self.client.send('end'.encode('utf-8'))
         self.client.close()
         self.gui.quit()
+
+    def request_user_list(self):
+        self.client.send('USERLIST'.encode('utf-8'))
 
     def update_user_list(self, user_list):
         self.chat_area.configure(state='normal')
@@ -82,9 +85,6 @@ class ChatClient:
         for user in user_list:
             self.chat_area.insert('end', user + '\n')
         self.chat_area.configure(state='disabled')
-
-    def display_user_list(self):
-        self.client.send('USERLIST'.encode('utf-8'))
 
 if __name__ == '__main__':
     client = ChatClient()
