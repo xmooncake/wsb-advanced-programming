@@ -1,9 +1,11 @@
 import socket
 import threading
+import time
 
 class ChatServer:
     def __init__(self):
-        self.host = 'localhost'
+        # IP address of the Ubuntu virtual machine
+        self.host = '192.168.0.129'
         self.port = 55556
         self.server = None
         self.clients = {}
@@ -14,39 +16,45 @@ class ChatServer:
         self.server.bind((self.host, self.port))
         self.server.listen()
 
-        print('Serwer nasłuchuje na {}:{}'.format(self.host, self.port))
+        print('Server listening on {}:{}'.format(self.host, self.port))
 
         while True:
             client, address = self.server.accept()
-            print('Nowe połączenie: {}'.format(address))
+            print('New connection: {}'.format(address))
 
             nickname = client.recv(1024).decode('utf-8')
 
             self.nicknames.append(nickname)
             self.clients[client] = nickname
 
-            self.broadcast('{} dołączył do czatu!\n'.format(nickname).encode('utf-8'))
-            client.send('Połączony z serwerem!\n'.encode('utf-8'))
+            self.broadcast('{} joined the chat!\n'.format(nickname), 'Server')
+            client.send('Connected to the server!\n'.encode('utf-8'))
             client.send(self.get_online_users().encode('utf-8'))
 
-            self.handle_client(client)
+            # Create a new thread for each client
+            threading.Thread(target=self.handle_client, args=(client,)).start()
 
-    def broadcast(self, message):
+    def broadcast(self, message, sender):
+        formatted_message = '[{}] {}: {}'.format(time.strftime('%H:%M:%S'), sender, message)
         for client in self.clients:
-            client.send(message)
+            client.send(formatted_message.encode('utf-8'))
 
     def handle_client(self, client):
+        nickname = self.clients[client]
+
         while True:
             try:
                 message = client.recv(1024)
-                self.broadcast('{}\n'.format(message.decode('utf-8')).encode('utf-8'))
+                self.broadcast(message.decode('utf-8'), nickname)
             except:
-                nickname = self.clients[client]
-                self.broadcast('{} opuścił czat!\n'.format(nickname).encode('utf-8'))
-                del self.clients[client]
-                self.nicknames.remove(nickname)
-                client.close()
+                self.remove_client(client, nickname)
                 break
+
+    def remove_client(self, client, nickname):
+        del self.clients[client]
+        self.nicknames.remove(nickname)
+        client.close()
+        self.broadcast('{} left the chat!'.format(nickname), 'Server')
 
     def stop(self):
         for client in self.clients:
@@ -54,7 +62,7 @@ class ChatServer:
         self.server.close()
 
     def get_online_users(self):
-        return 'Użytkownicy online: {}\n'.format(', '.join(self.nicknames))
+        return 'Online users: {}\n'.format(', '.join(self.nicknames))
 
 if __name__ == '__main__':
     server = ChatServer()
