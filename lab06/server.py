@@ -44,8 +44,11 @@ class ChatServer:
 
         while True:
             try:
-                message = client.recv(1024)
-                self.broadcast(message.decode('utf-8'), nickname)
+                message = client.recv(1024).decode('utf-8')
+                if message == 'USERLIST':
+                    client.send('USERLIST{}'.format(','.join(self.nicknames)).encode('utf-8'))
+                else:
+                    self.broadcast(message, nickname)
             except:
                 self.remove_client(client, nickname)
                 break

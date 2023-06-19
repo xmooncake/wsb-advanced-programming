@@ -1,3 +1,10 @@
+import socket
+import threading
+import random
+import string
+import tkinter as tk
+from tkinter import scrolledtext, messagebox, simpledialog
+
 class ChatClient:
     def __init__(self):
         self.host = '192.168.0.129'
@@ -15,10 +22,10 @@ class ChatClient:
         self.message_entry = tk.Entry(self.gui)
         self.message_entry.pack(padx=10, pady=10)
 
-        self.send_button = tk.Button(self.gui, text='Wyślij', command=self.send_message)
+        self.send_button = tk.Button(self.gui, text='Send', command=self.send_message)
         self.send_button.pack(padx=10, pady=10)
 
-        self.user_list_button = tk.Button(self.gui, text='Lista użytkowników', command=self.display_user_list)
+        self.user_list_button = tk.Button(self.gui, text='Connected Users', command=self.display_user_list)
         self.user_list_button.pack(padx=10, pady=10)
 
         self.gui.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -46,7 +53,7 @@ class ChatClient:
                 else:
                     self.display_message(message)
             except:
-                print('Wystąpił błąd podczas odbierania wiadomości!')
+                print('An error occurred while receiving messages!')
                 self.client.close()
                 break
 
@@ -61,7 +68,7 @@ class ChatClient:
         self.chat_area.configure(state='disabled')
 
     def prompt_for_nickname(self):
-        return simpledialog.askstring('Nickname', 'Podaj swoją nazwę użytkownika')
+        return simpledialog.askstring('Nickname', 'Enter your nickname')
 
     def on_closing(self):
         self.client.send('koniec'.encode('utf-8'))
@@ -71,10 +78,14 @@ class ChatClient:
     def update_user_list(self, user_list):
         self.chat_area.configure(state='normal')
         self.chat_area.delete('1.0', 'end')
-        self.chat_area.insert('end', 'Lista użytkowników:\n')
+        self.chat_area.insert('end', 'Connected Users:\n')
         for user in user_list:
             self.chat_area.insert('end', user + '\n')
         self.chat_area.configure(state='disabled')
 
     def display_user_list(self):
         self.client.send('USERLIST'.encode('utf-8'))
+
+if __name__ == '__main__':
+    client = ChatClient()
+    client.connect()
